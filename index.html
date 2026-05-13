@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ventilation Control System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <h2 style="color: var(--accent); letter-spacing: 4px; margin-bottom: 20px;">SYSTEM ACCESS</h2>
+    <input type="text" id="username" class="login-input" placeholder="USERNAME" autocomplete="off">
+    <input type="password" id="password" class="login-input" placeholder="PASSWORD">
+    <button class="login-btn" onclick="checkLogin()">AUTHORIZE</button>
+    <div id="loginError" style="color: var(--red); font-family: 'Share Tech Mono'; font-size: 11px; margin-top: 10px; display: none;">ACCESS DENIED</div>
+  </div>
+</div>
+
+<div class="wrapper" id="mainWrapper">
+  <header>
+    <div class="header-left">
+      <div class="logo-box"><span class="logo-icon">NEO</span></div>
+      <div class="header-title">
+        <h1>Ventilation Control</h1>
+        <span>WAREHOUSE MANAGEMENT SYSTEM v2.0</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="metric-card good">
+      <div class="metric-label">ACTIVE FANS</div>
+      <div class="metric-value" id="activeCount">0<span class="metric-unit">/ 5</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">AVG TEMPERATURE</div>
+      <div class="metric-value" id="avgTemp">0<span class="metric-unit">°C</span></div>
+    </div>
+    <div class="metric-card alert">
+      <div class="metric-label">POWER DRAW</div>
+      <div class="metric-value" id="powerDraw">0<span class="metric-unit">W</span></div>
+    </div>
+    <div class="metric-card auto-metric">
+      <div class="metric-label">AUTO CYCLE</div>
+      <div class="metric-value" id="autoCount">0<span class="metric-unit">/ 5</span></div>
+    </div>
+    <div class="metric-card good">
+      <div class="metric-label">UPTIME</div>
+      <div class="metric-value" id="uptime">00<span class="metric-unit">h</span> 00<span class="metric-unit">m</span></div>
+    </div>
+  </div>
+
+  <!-- ESP CLUSTER -->
+  <div class="section-container">
+    <div class="section-header">CONTROLLER CLUSTER STATUS</div>
+    <div class="esp-cluster-row">
+
+      <div class="esp-node-card" id="node1">
+        <div class="node-icon">ESP32</div>
+        <div class="node-info">
+          <div class="node-name">UNIT 01</div>
+          <div class="node-desc">WH1 — WH2 Wing</div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span class="status-text">OFFLINE</span>
+        </div>
+      </div>
+
+      <div class="esp-node-card" id="node2">
+        <div class="node-icon">ESP32</div>
+        <div class="node-info">
+          <div class="node-name">UNIT 02</div>
+          <div class="node-desc">WH3 — WH4 Wing</div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span class="status-text">OFFLINE</span>
+        </div>
+      </div>
+
+      <div class="esp-node-card" id="node3">
+        <div class="node-icon">ESP32</div>
+        <div class="node-info">
+          <div class="node-name">UNIT 03</div>
+          <div class="node-desc">WH5 Storage</div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span class="status-text">OFFLINE</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WAREHOUSE CARDS -->
+  <div class="section-title">WAREHOUSE UNITS</div>
+  <div class="warehouses" id="whGrid"></div>
+
+  <!-- CONTROL PANELS -->
+  <div class="controls">
+
+    <!-- MASTER MANUAL -->
+    <div class="ctrl-card">
+      <div class="ctrl-title">MASTER CONTROL</div>
+      <div class="all-btns">
+        <button class="btn-all btn-all-on"  onclick="setAll(true)">ALL ON</button>
+        <button class="btn-all btn-all-off" onclick="setAll(false)">ALL OFF</button>
+      </div>
+    </div>
+
+    <!-- AUTO CYCLE -->
+    <div class="ctrl-card ctrl-auto">
+      <div class="ctrl-title" style="color: var(--yellow);">AUTO CYCLE  <span style="color:var(--dim);font-size:10px;">30min ON / 5min OFF</span></div>
+      <div class="auto-info-row">
+        ESP тасарсан ч гэсэн ESP дотроо ажиллана
+      </div>
+      <div class="all-btns">
+        <button class="btn-all btn-auto-on"  onclick="setAllAuto(true)">AUTO ALL ON</button>
+        <button class="btn-all btn-auto-off" onclick="setAllAuto(false)">AUTO ALL OFF</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOG -->
+  <div class="log-section">
+    <div class="section-title">SYSTEM LOG</div>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <footer>
+    <span class="footer-txt">ESP32 GPIO MAP: WH1=GPIO4 | WH2=GPIO5 | WH3=GPIO18 | WH4=GPIO19 | WH5=GPIO21</span>
+    <span class="fw-tag">FW: ESP32-VENT-2.0.0</span>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
