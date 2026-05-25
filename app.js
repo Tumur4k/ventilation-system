@@ -18,11 +18,11 @@ const users = [
 ];
 
 // ── MQTT ──
-const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "clientId-" + Math.random());
+const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8884), "clientId-" + Math.random());
 
 client.onConnectionLost = function(responseObject) {
     addLog("MQTT CONNECTION LOST — Reconnecting...", "sys");
-    setTimeout(() => client.connect({ onSuccess: onMQTTConnect, useSSL: false }), 3000);
+    setTimeout(() => client.connect({ onSuccess: onMQTTConnect, useSSL: true }), 3000);
 };
 
 client.onMessageArrived = function(message) {
@@ -139,7 +139,7 @@ function sendStatusRequest() {
     } catch(e) {}
 }
 
-client.connect({ onSuccess: onMQTTConnect, useSSL: false });
+client.connect({ onSuccess: onMQTTConnect, useSSL: true });
 
 // ── LOGIN ──
 function checkLogin() {
