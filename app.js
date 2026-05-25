@@ -78,12 +78,6 @@ client.onMessageArrived = function(message) {
         const w    = warehouses.find(x => x.id === id);
         if (!w) return;
 
-        // ── ДҮГНЭЛТ: өгөгдөл ирж байвал тухайн ESP заавал ONLINE ──
-        // esp_status retained message ирээгүй байсан ч зөв ажиллана
-        if (!espStatus[w.espNode]) {
-            markESPOnline(w.espNode);
-        }
-
         if (type === "temp")     w.temp     = parseFloat(payload);
         if (type === "humidity") w.humidity = parseFloat(payload);
         if (type === "status")   w.active   = (payload === "ON");
